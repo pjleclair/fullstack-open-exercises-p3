@@ -32,6 +32,19 @@ app.get('/api/persons/:id', (request, response) => {
     }
 })
 
+app.delete('/api/persons/:id', (request, response) => {
+    const id = Number(request.params.id)
+    console.log(id)
+    persons = persons.filter(person => {
+        console.log(person.id)
+        return person.id !== id
+    })
+    
+    console.log(persons)
+
+    response.status(204).end()
+})
+
 app.get ('/api/persons', (request, response) => {
     response.json(persons)
 })
