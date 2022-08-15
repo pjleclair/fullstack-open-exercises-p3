@@ -63,6 +63,10 @@ app.post('/api/persons', (req, res) => {
         return res.status(400).json({
             error: "name/number is missing!"
         })
+    } else if (persons.find(people => people.name.toLowerCase() === person.name.toLowerCase())) {
+        return res.status(400).json({
+            error: "name must be unique!"
+        })
     }
     console.log(person)
 
