@@ -1,12 +1,16 @@
 const { response } = require('express')
 const express = require('express')
 var morgan = require('morgan')
-const app = express()
-
-app.use(express.json())
-app.use(morgan('tiny'))
-
 let persons = require('./persons.json')
+
+const app = express()
+app.use(express.json())
+
+morgan.token('person', (req) => {
+    return JSON.stringify(req.body)
+})
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :person'))
+
 
 const generateId = (range) => {
     const id = Math.floor(Math.random()*range)
@@ -34,9 +38,7 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
-    console.log(id)
     const newPerson = persons.find(person => {
-        console.log(person)
         return person.id === id
     })
     if (newPerson) {
@@ -70,7 +72,6 @@ app.post('/api/persons', (req, res) => {
             error: "name must be unique!"
         })
     }
-    console.log(person)
 
     const newPerson = {
         id: generateId(1000),
