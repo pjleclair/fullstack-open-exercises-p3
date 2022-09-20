@@ -89,7 +89,8 @@ app.get('/api/persons', (request, response) => {
     response.json(persons)
 })
 
-const PORT = 3001
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 3001
+const host = '0.0.0.0'
+app.listen(PORT, host, () => {
     console.log(`Server running on ${PORT}!`)
 })
