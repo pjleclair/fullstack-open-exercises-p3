@@ -46,23 +46,25 @@ app.get('/info', (request, response) => {
     </div>`)
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id).then(person => {
-        response.json(person)
+        if (note) {
+            response.json(person)
+        } else {
+            response.status(404).end()
+        }
+    })
+    .catch(error => {
+        next(error)
     })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    console.log(id)
-    persons = persons.filter(person => {
-        console.log(person.id)
-        return person.id !== id
+    Person.findByIdAndRemove(request.params.id)
+    .then(result => {
+        response.status(204).end()
     })
-    
-    console.log(persons)
-
-    response.status(204).end()
+    .catch(error => next(error))
 })
 
 app.post('/api/persons', (req, res) => {
@@ -96,6 +98,23 @@ app.get('/api/persons', (request, response) => {
         response.json(people)
     })
 })
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({error: 'unknown endpoint'})
+}
+
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+    console.log(error)
+    if (error.name === 'CastError') {
+        response.status(400).send({error: 'malformatted id'})
+    }
+
+    next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 const host = '0.0.0.0'
