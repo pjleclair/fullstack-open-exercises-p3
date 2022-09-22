@@ -2,7 +2,6 @@ require('dotenv').config()
 const { response } = require('express')
 const express = require('express')
 var morgan = require('morgan')
-let persons = require('./persons.json')
 const cors = require('cors')
 
 const app = express()
@@ -10,7 +9,6 @@ app.use(express.json())
 app.use(express.static('build'))
 app.use(cors())
 
-const password = process.argv[2]
 const name = process.argv[3]
 const number = process.argv[4]
 
@@ -20,16 +18,6 @@ morgan.token('person', (req) => {
     return JSON.stringify(req.body)
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :person'))
-
-
-const generateId = (range) => {
-    const id = Math.floor(Math.random()*range)
-    if (persons.find(person => person.id === id)) {
-        id = Math.floor(Math.random()*range)
-    } else {
-        return id
-    }
-}
 
 app.get('/', (request, response) => {
     response.send(`<h1>G'day m8!</h1>`)
@@ -48,7 +36,7 @@ app.get('/info', (request, response) => {
 
 app.get('/api/persons/:id', (request, response, next) => {
     Person.findById(request.params.id).then(person => {
-        if (note) {
+        if (person) {
             response.json(person)
         } else {
             response.status(404).end()
@@ -69,11 +57,12 @@ app.delete('/api/persons/:id', (request, response) => {
 
 app.post('/api/persons', (req, res) => {
     const person = req.body
-    // if (!person.name || !person.number) {
-    //     return res.status(400).json({
-    //         error: "name/number is missing!"
-    //     })
-    // } else if (persons.find(people => people.name.toLowerCase() === person.name.toLowerCase())) {
+    if (!person.name || !person.number) {
+        return res.status(400).json({
+            error: "name/number is missing!"
+        })
+    }
+    // else if (Person.findById(people => people.name.toLowerCase() === person.name.toLowerCase())) {
     //     return res.status(400).json({
     //         error: "name must be unique!"
     //     })
@@ -91,6 +80,22 @@ app.post('/api/persons', (req, res) => {
     newPerson.save().then(savedPerson => {
         res.json(savedPerson)
     })
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const person = request.body
+    const newPerson = {
+        name: person.name,
+        number: person.number
+    }
+    console.log(request.params.id)
+
+    Person
+    .findByIdAndUpdate(request.params.id, newPerson, {new: true})
+    .then(updatedPerson => {
+        response.json(updatedPerson)
+    })
+    .catch(error => next(error))
 })
 
 app.get('/api/persons', (request, response) => {
