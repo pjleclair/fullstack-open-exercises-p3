@@ -24,14 +24,19 @@ app.get('/', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-    const numPeople = persons.length
-    const date = new Date()
-    response.send(`
-    <div>
-        <div>Phonebook has info for ${numPeople} people</div>
-        <br />
-        <div>${date}</div>
-    </div>`)
+    Person.find({}).then(res => {
+        const date = new Date()
+        const numPeople = res.length
+        response.send(`
+            <div>
+                <div>Phonebook has info for ${numPeople} people</div>
+                <br />
+                <div>${date}</div>
+            </div>
+        `)
+    })
+    
+    
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
