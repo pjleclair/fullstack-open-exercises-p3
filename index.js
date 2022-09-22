@@ -60,7 +60,7 @@ app.delete('/api/persons/:id', (request, response) => {
     .catch(error => next(error))
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
     const person = req.body
     if (!person.name || !person.number) {
         return res.status(400).json({
@@ -82,9 +82,12 @@ app.post('/api/persons', (req, res) => {
         number: person.number
     })
 
-    newPerson.save().then(savedPerson => {
+    newPerson
+    .save()
+    .then(savedPerson => {
         res.json(savedPerson)
     })
+    .catch(error=>next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -118,7 +121,9 @@ app.use(unknownEndpoint)
 const errorHandler = (error, request, response, next) => {
     console.log(error)
     if (error.name === 'CastError') {
-        response.status(400).send({error: 'malformatted id'})
+        return response.status(400).send({error: 'malformatted id'})
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).send({error: error.message})
     }
 
     next(error)
