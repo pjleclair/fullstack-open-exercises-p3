@@ -9,8 +9,6 @@ app.use(express.json())
 app.use(express.static('build'))
 app.use(cors())
 
-const name = process.argv[3]
-const number = process.argv[4]
 
 const Person = require('./models/person')
 
@@ -54,9 +52,10 @@ app.get('/api/persons/:id', (request, response, next) => {
 
 app.delete('/api/persons/:id', (request, response) => {
     Person.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
         response.status(204).end()
     })
+    // eslint-disable-next-line no-undef
     .catch(error => next(error))
 })
 

@@ -21,7 +21,7 @@ const Person = mongoose.model('Person', personSchema)
 
 mongoose
     .connect(url)
-    .then((result)=> {
+    .then(()=> {
         console.log('connected!')
         if (process.argv.length === 3) {
             console.log('phonebook:')
