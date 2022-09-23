@@ -15,6 +15,7 @@ const personSchema = new mongoose.Schema({
     id: Number,
     name: {type: String, required: true, minLength: 3},
     number: {type: String, required: true, minLength: 10,
+        //custom validation:
         validate: [num => {
                 if (num.split('-').length < 2) {
                     return false
