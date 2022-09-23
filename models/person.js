@@ -14,7 +14,17 @@ mongoose.connect(url)
 const personSchema = new mongoose.Schema({
     id: Number,
     name: {type: String, required: true, minLength: 3},
-    number: String
+    number: {type: String, required: true, minLength: 10,
+        validate: [num => {
+                if (num.split('-').length < 2) {
+                    return false
+                } else if (num.split('-')[0].length !== 3) {
+                    return false
+                } else {
+                    return true
+                }
+            } , 'Phone number format should be XXX-XXX-XXXX']
+    }
 })
 
 personSchema.set('toJSON', {

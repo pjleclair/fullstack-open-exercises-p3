@@ -67,11 +67,17 @@ app.post('/api/persons', (req, res, next) => {
             error: "name/number is missing!"
         })
     }
-    // else if (Person.findById(people => people.name.toLowerCase() === person.name.toLowerCase())) {
-    //     return res.status(400).json({
-    //         error: "name must be unique!"
-    //     })
-    // }
+    //If request hasn't been redirected to PUT, check to see if name exists already
+    Person.find({}).then(response => {
+        const found = response.find(people => {
+            people.name.toLowerCase() === person.name.toLowerCase()
+        })
+        if (found !== undefined) {
+            return res.status(400).json({
+                error: "name must be unique!"
+            })
+        }
+    })
 
     if (person === undefined) {
         return response.status(400).json({error: 'content missing'})
@@ -91,15 +97,15 @@ app.post('/api/persons', (req, res, next) => {
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-    const person = request.body
+    const {name, number} = request.body
     const newPerson = {
-        name: person.name,
-        number: person.number
+        name: name,
+        number: number
     }
     console.log(request.params.id)
 
     Person
-    .findByIdAndUpdate(request.params.id, newPerson, {new: true})
+    .findByIdAndUpdate(request.params.id, newPerson, {new: true, runValidators: true, context: 'query'})
     .then(updatedPerson => {
         response.json(updatedPerson)
     })
